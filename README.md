@@ -1,5 +1,7 @@
 # AI Agents from Scratch
 
+**Developed by Prabhakar Singh**
+
 ![AI Agents from Scratch](logo.png)
 
 ## Table of Contents
