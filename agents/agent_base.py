@@ -12,8 +12,7 @@ load_dotenv()
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile")
 FALLBACK_MODEL = "llama-3.1-8b-instant"
 
-# Initialize Groq client
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+# Client will be initialized lazily inside call_groq to avoid app crashes if key is missing
 
 
 class AgentBase(ABC):
@@ -28,6 +27,18 @@ class AgentBase(ABC):
 
     def call_groq(self, messages, temperature=0.7, max_tokens=1024):
         retries = 0
+        
+        # Initialize Groq client lazily
+        try:
+            import streamlit as st
+            api_key = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY")
+        except Exception:
+            api_key = os.getenv("GROQ_API_KEY")
+            
+        if not api_key:
+            raise Exception("GROQ_API_KEY is missing! Please configure it in Streamlit Cloud Secrets or your .env file.")
+            
+        client = Groq(api_key=api_key)
 
         while retries < self.max_retries:
             try:
